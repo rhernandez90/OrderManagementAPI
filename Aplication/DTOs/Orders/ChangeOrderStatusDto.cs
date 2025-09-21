@@ -1,6 +1,6 @@
 ﻿using OrderManagementAPI.Domain.Enums;
 
-namespace OrderManagementAPI.Aplication.DTOs
+namespace OrderManagementAPI.Aplication.DTOs.Orders
 {
     public class ChangeOrderStatusDto
     {

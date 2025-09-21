@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OrderManagementAPI.Aplication.DTOs;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using OrderManagementAPI.Aplication.DTOs.Orders;
 using OrderManagementAPI.Aplication.Mappers;
 using OrderManagementAPI.Aplication.Services;
 using OrderManagementAPI.Controllers.DTOs;
@@ -22,7 +23,7 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
         {
             var order = await _orderService.CreateOrderAsync(dto);
-            var response = new ApiResponseDto<OrderDto>(order.ToDto(), "Order created successfully");
+            var response = new ApiResponseDto<OrderDto>(order, "Order created successfully");
             return CreatedAtAction(nameof(Get), new { id = order.Id }, response);
         }
 
@@ -33,7 +34,7 @@ namespace OrderManagementAPI.Controllers
             if (order is null)
                 return NotFound(new ApiResponseDto<OrderDto>(new List<string> { "Order not found" }));
 
-            var response = new ApiResponseDto<OrderDto>(order.ToDto(), "Order retrieved successfully");
+            var response = new ApiResponseDto<OrderDto>(order, "Order retrieved successfully");
             return Ok(response);
         }
 
@@ -41,7 +42,7 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] CreateOrderDto dto)
         {
             var order = await _orderService.UpdateOrderAsync(id, dto);
-            var response = new ApiResponseDto<OrderDto>(order.ToDto(), "Order updated successfully");
+            var response = new ApiResponseDto<OrderDto>(order, "Order updated successfully");
             return Ok(response);
         }
 
@@ -49,7 +50,7 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _orderService.DeleteOrderAsync(id);
-            var response = new ApiResponseDto<object>(null, "Order deleted successfully");
+            var response = new ApiResponseDto<object>(data: null, "Order deleted successfully");
             return Ok(response);
         }
 
@@ -57,19 +58,15 @@ namespace OrderManagementAPI.Controllers
         public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] ChangeOrderStatusDto dto)
         {
             var order = await _orderService.ChangeStatusAsync(id, dto);
-            var response = new ApiResponseDto<OrderDto>(order.ToDto(), $"Order status changed to {order.Status}");
+            var response = new ApiResponseDto<OrderDto>(order, $"Order status changed to {order.Status}");
             return Ok(response);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Search([FromQuery] string? client, [FromQuery] OrderStatus? status,
-            [FromQuery] int page = 1, [FromQuery] int size = 10)
+        public async Task<IActionResult> Search([FromQuery] OrderFilterDto filter)
         {
-            var orders = await _orderService.SearchOrdersAsync(client, status, page, size);
-
-            var orderDtos = orders.Select(o => o.ToDto());
-
-            var response = new ApiResponseDto<IEnumerable<OrderDto>>(orderDtos, "Orders retrieved successfully");
+            var orders = await _orderService.SearchOrdersAsync(filter);
+            var response = new ApiResponseDto<OrderManagementAPI.Aplication.DTOs.PagedResult<OrderDto>>(orders, "Orders retrieved successfully");
             return Ok(response);
         }
     }

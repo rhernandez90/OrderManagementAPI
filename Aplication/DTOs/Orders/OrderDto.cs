@@ -1,6 +1,7 @@
-﻿using OrderManagementAPI.Domain.Enums;
+﻿using OrderManagementAPI.Aplication.DTOs.Products;
+using OrderManagementAPI.Domain.Enums;
 
-namespace OrderManagementAPI.Aplication.DTOs
+namespace OrderManagementAPI.Aplication.DTOs.Orders
 {
     public class OrderDto
     {

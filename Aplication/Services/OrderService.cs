@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Aplication.DTOs;
+using OrderManagementAPI.Aplication.DTOs.Orders;
+using OrderManagementAPI.Aplication.DTOs.Products;
 using OrderManagementAPI.Aplication.Exceptions;
+using OrderManagementAPI.Aplication.Mappers;
 using OrderManagementAPI.Domain.Entities;
 using OrderManagementAPI.Domain.Enums;
 using OrderManagementAPI.Infrastructure.Percistence;
@@ -16,7 +19,7 @@ namespace OrderManagementAPI.Aplication.Services
             _context = context;
         }
 
-        public async Task<Order> CreateOrderAsync(CreateOrderDto dto)
+        public async Task<OrderDto> CreateOrderAsync(CreateOrderDto dto)
         {
             var product = await _context.Products.FindAsync(dto.ProductId)
                           ?? throw new BusinessException("Product not found");
@@ -25,38 +28,43 @@ namespace OrderManagementAPI.Aplication.Services
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-            return order;
+            return order.ToDto();
         }
 
-        public async Task<Order?> GetOrderAsync(Guid id)
+        public async Task<OrderDto?> GetOrderAsync(Guid id)
         {
-            return await _context.Orders.Include(o => o.Product)
+            var order = await _context.Orders.Include(o => o.Product)
                         .FirstOrDefaultAsync(o => o.Id == id);
+
+            return order?.ToDto() ?? null;
         }
 
-        public async Task<Order> UpdateOrderAsync(Guid id, CreateOrderDto dto)
+        public async Task<OrderDto> UpdateOrderAsync(Guid id, CreateOrderDto dto)
         {
-            var order = await GetOrderAsync(id)
+            var order = await _context.Orders.Include(o => o.Product)
+                        .FirstOrDefaultAsync(o => o.Id == id)
                         ?? throw new BusinessException("Order not found");
 
             // ejemplo simple, puedes separar métodos de actualización
             order.UpdateDescription(dto.Description);
             await _context.SaveChangesAsync();
-            return order;
+            return order.ToDto();
         }
 
         public async Task DeleteOrderAsync(Guid id)
         {
-            var order = await GetOrderAsync(id)
+            var order = await _context.Orders.Include(o => o.Product)
+                        .FirstOrDefaultAsync(o => o.Id == id)
                         ?? throw new BusinessException("Order not found");
 
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Order> ChangeStatusAsync(Guid id, ChangeOrderStatusDto dto)
+        public async Task<OrderDto> ChangeStatusAsync(Guid id, ChangeOrderStatusDto dto)
         {
-            var order = await GetOrderAsync(id)
+            var order = await _context.Orders.Include(o => o.Product)
+                        .FirstOrDefaultAsync(o => o.Id == id)
                         ?? throw new BusinessException("Order not found");
 
             // validación de transición
@@ -65,7 +73,7 @@ namespace OrderManagementAPI.Aplication.Services
 
             order.UpdateStatus(dto.NewStatus);
             await _context.SaveChangesAsync();
-            return order;
+            return order.ToDto();
         }
 
         private bool IsValidTransition(OrderStatus current, OrderStatus next)
@@ -80,17 +88,34 @@ namespace OrderManagementAPI.Aplication.Services
             };
         }
 
-        public async Task<IEnumerable<Order>> SearchOrdersAsync(string? client, OrderStatus? status, int page, int size)
+        public async Task<PagedResult<OrderDto>> SearchOrdersAsync(OrderFilterDto filter)
         {
             var query = _context.Orders.Include(o => o.Product).AsQueryable();
 
-            if (!string.IsNullOrEmpty(client))
-                query = query.Where(o => o.Client.Contains(client));
+            if (!string.IsNullOrEmpty(filter.Client))
+                query = query.Where(o => o.Client.Contains(filter.Client));
 
-            if (status.HasValue)
-                query = query.Where(o => o.Status == status);
+            if (!string.IsNullOrEmpty(filter.Description))
+                query = query.Where(o => o.Description.Contains(filter.Description));
 
-            return await query.Skip((page - 1) * size).Take(size).ToListAsync();
+            if (filter.Status.HasValue)
+                query = query.Where(o => o.Status == filter.Status);
+
+            var items = await query
+              .Skip((filter.Page - 1) * filter.PageSize)
+              .Take(filter.PageSize)
+              .Select(x => x.ToDto())
+              .ToListAsync();
+
+            var totalCount = await query.CountAsync();
+
+            return new PagedResult<OrderDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = filter.Page,
+                PageSize = filter.PageSize
+            };
         }
     }
 }
