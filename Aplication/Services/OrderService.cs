@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Aplication.DTOs;
+using OrderManagementAPI.Aplication.Exceptions;
 using OrderManagementAPI.Domain.Entities;
 using OrderManagementAPI.Domain.Enums;
 using OrderManagementAPI.Infrastructure.Percistence;
@@ -18,7 +19,7 @@ namespace OrderManagementAPI.Aplication.Services
         public async Task<Order> CreateOrderAsync(CreateOrderDto dto)
         {
             var product = await _context.Products.FindAsync(dto.ProductId)
-                          ?? throw new Exception("Product not found");
+                          ?? throw new BusinessException("Product not found");
 
             var order = new Order(dto.Client, dto.Description, product.Id);
 
@@ -36,7 +37,7 @@ namespace OrderManagementAPI.Aplication.Services
         public async Task<Order> UpdateOrderAsync(Guid id, CreateOrderDto dto)
         {
             var order = await GetOrderAsync(id)
-                        ?? throw new Exception("Order not found");
+                        ?? throw new BusinessException("Order not found");
 
             // ejemplo simple, puedes separar métodos de actualización
             order.UpdateDescription(dto.Description);
@@ -47,7 +48,7 @@ namespace OrderManagementAPI.Aplication.Services
         public async Task DeleteOrderAsync(Guid id)
         {
             var order = await GetOrderAsync(id)
-                        ?? throw new Exception("Order not found");
+                        ?? throw new BusinessException("Order not found");
 
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
@@ -56,11 +57,11 @@ namespace OrderManagementAPI.Aplication.Services
         public async Task<Order> ChangeStatusAsync(Guid id, ChangeOrderStatusDto dto)
         {
             var order = await GetOrderAsync(id)
-                        ?? throw new Exception("Order not found");
+                        ?? throw new BusinessException("Order not found");
 
             // validación de transición
             if (!IsValidTransition(order.Status, dto.NewStatus))
-                throw new Exception($"Invalid transition from {order.Status} to {dto.NewStatus}");
+                throw new BusinessException($"Invalid transition from {order.Status} to {dto.NewStatus}");
 
             order.UpdateStatus(dto.NewStatus);
             await _context.SaveChangesAsync();

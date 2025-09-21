@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderManagementAPI.Infrastructure.Percistence;
 
@@ -11,9 +12,11 @@ using OrderManagementAPI.Infrastructure.Percistence;
 namespace OrderManagementAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250921063044_SeedProducts")]
+    partial class SeedProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,10 +96,6 @@ namespace OrderManagementAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("WidthCm")
                         .HasColumnType("int");
 
@@ -113,8 +112,7 @@ namespace OrderManagementAPI.Infrastructure.Migrations
                             Name = "Playera Básica",
                             Price = 15.99m,
                             Size = "M",
-                            Sku = "TSHIRT001",
-                            Type = "0"
+                            Sku = "TSHIRT001"
                         },
                         new
                         {
@@ -124,8 +122,7 @@ namespace OrderManagementAPI.Infrastructure.Migrations
                             Description = "",
                             Name = "Taza de Café",
                             Price = 7.50m,
-                            Sku = "MUG001",
-                            Type = "0"
+                            Sku = "MUG001"
                         },
                         new
                         {
@@ -136,7 +133,6 @@ namespace OrderManagementAPI.Infrastructure.Migrations
                             Paper = "Mate",
                             Price = 12.00m,
                             Sku = "POSTER001",
-                            Type = "0",
                             WidthCm = 40
                         });
                 });

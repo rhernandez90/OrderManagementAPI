@@ -1,19 +1,39 @@
-﻿namespace OrderManagementAPI.Domain.Entities
+﻿using OrderManagementAPI.Domain.Enums;
+
+namespace OrderManagementAPI.Domain.Entities
 {
-    public class Product(string sku, string name, decimal price)
+    public class Product
     {
-        public Guid Id { get; private set; } = Guid.NewGuid();
-        public string Sku { get; private set; } = sku;
-        public string Name { get; private set; } = name;
-        public string Description { get; private set; } = string.Empty;
-        public decimal Price { get; private set; } = price;
+
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Sku { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+
+        public ProductType Type { get; set; }
 
         // Optionals fields
-        public string? Size { get; private set; }
-        public string? Color { get; private set; }
-        public int? CapacityMl { get; private set; }
-        public int? HeightCm { get; private set; }
-        public int? WidthCm { get; private set; }
-        public string? Paper { get; private set; }
+        public string? Size { get; set; }
+        public string? Color { get; set; }
+        public int? CapacityMl { get; set; }
+        public int? HeightCm { get; set; }
+        public int? WidthCm { get; set; }
+        public string? Paper { get; set; }
+
+
+        public Product() { }
+
+        public Product(string sku, string name, decimal price, ProductType type)
+        {
+            Sku = sku;
+            Name = name;
+            Price = price;
+            Type = type;
+        }
+        
+
+
+        
     }
 }
