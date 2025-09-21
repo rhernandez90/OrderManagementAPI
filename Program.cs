@@ -12,9 +12,12 @@ builder.Services.AddSwaggerGen();
 
 string dbUser = Environment.GetEnvironmentVariable("DB_USER");
 string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+string dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+string dbName = Environment.GetEnvironmentVariable("DB_NAME");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer($"Server={Environment.GetEnvironmentVariable("DB_HOST")};Database={Environment.GetEnvironmentVariable("DB_NAME")};User Id={dbUser};Password={dbPassword};"));
+    options.UseSqlServer(
+        $"Server={dbHost};Database={dbName};User Id={dbUser};Password={dbPassword};TrustServerCertificate=True;"));
 
 
 // Add services to the container.
