@@ -1,14 +1,15 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using OrderManagementAPI.Aplication.Middleware;
 using OrderManagementAPI.Infrastructure.Percistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 string dbUser = Environment.GetEnvironmentVariable("DB_USER");
 string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
@@ -27,6 +28,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
