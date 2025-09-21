@@ -1,7 +1,20 @@
+using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
+using OrderManagementAPI.Infrastructure.Percistence;
+
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer($"Server={Environment.GetEnvironmentVariable("DB_HOST")};Database={Environment.GetEnvironmentVariable("DB_NAME")};User Id={dbUser};Password={dbPassword};"));
 
 
 // Add services to the container.
