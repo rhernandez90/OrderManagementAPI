@@ -1,7 +1,7 @@
 ﻿using OrderManagementAPI.Aplication.DTOs;
 using OrderManagementAPI.Aplication.DTOs.Products;
 
-namespace OrderManagementAPI.Aplication.Services
+namespace OrderManagementAPI.Aplication.Services.Products
 {
     public interface IProductService
     {

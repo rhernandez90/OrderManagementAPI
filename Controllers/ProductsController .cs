@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrderManagementAPI.Aplication.DTOs;
 using OrderManagementAPI.Aplication.DTOs.Products;
-using OrderManagementAPI.Aplication.Services;
+using OrderManagementAPI.Aplication.Services.Products;
 using OrderManagementAPI.Controllers.DTOs;
 using OrderManagementAPI.Domain.Entities;
 

@@ -2,19 +2,24 @@
 using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Aplication.Middleware;
 using OrderManagementAPI.Aplication.Services;
+using OrderManagementAPI.Aplication.Services.MessageBus;
+using OrderManagementAPI.Aplication.Services.Products;
 using OrderManagementAPI.Infrastructure.Percistence;
 using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-if (!Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true") ?? true)
+var docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true") ?? false;
+
+// en caso de que se corra local importamos el archivo .env
+if (!docker)
 {
     Env.Load();
 }
 
-
-if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true") ?? false)
+// Obligamos a correr el API en el puerto 5000
+if (docker)
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
@@ -41,6 +46,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -89,14 +95,14 @@ static async Task WaitForSqlServerAsync(string host, int port, int retries = 10,
         {
             using var client = new TcpClient();
             await client.ConnectAsync(host, port);
-            Console.WriteLine("✅ SQL Server está listo!");
+            Console.WriteLine("SQL Server está listo!");
             return;
         }
         catch
         {
-            Console.WriteLine($"⏳ Esperando SQL Server... intento {i + 1}/{retries}");
+            Console.WriteLine($"Esperando SQL Server... intento {i + 1}/{retries}");
             await Task.Delay(delayMs);
         }
     }
-    throw new Exception("❌ No se pudo conectar a SQL Server después de varios intentos.");
+    throw new Exception("No se pudo conectar a SQL Server después de varios intentos.");
 }

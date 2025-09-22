@@ -6,7 +6,7 @@ using OrderManagementAPI.Aplication.Mappers;
 using OrderManagementAPI.Domain.Entities;
 using OrderManagementAPI.Infrastructure.Percistence;
 
-namespace OrderManagementAPI.Aplication.Services
+namespace OrderManagementAPI.Aplication.Services.Products
 {
     public class ProductService : IProductService
     {

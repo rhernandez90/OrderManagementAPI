@@ -4,6 +4,7 @@ using OrderManagementAPI.Aplication.DTOs.Orders;
 using OrderManagementAPI.Aplication.DTOs.Products;
 using OrderManagementAPI.Aplication.Exceptions;
 using OrderManagementAPI.Aplication.Mappers;
+using OrderManagementAPI.Aplication.Services.MessageBus;
 using OrderManagementAPI.Domain.Entities;
 using OrderManagementAPI.Domain.Enums;
 using OrderManagementAPI.Infrastructure.Percistence;
@@ -13,10 +14,12 @@ namespace OrderManagementAPI.Aplication.Services
     public class OrderService : IOrderService
     {
         private readonly AppDbContext _context;
+        private readonly IRabbitMqService _busService;
 
-        public OrderService(AppDbContext context)
+        public OrderService(AppDbContext context, IRabbitMqService busService)
         {
             _context = context;
+            _busService = busService;
         }
 
         public async Task<OrderDto> CreateOrderAsync(CreateOrderDto dto)
@@ -28,6 +31,9 @@ namespace OrderManagementAPI.Aplication.Services
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+
+            _busService.Publish("orders", new { Event = "OrderCreated", OrderId = order.Id, Status = order.Status });
+
             return order.ToDto();
         }
 
@@ -67,12 +73,14 @@ namespace OrderManagementAPI.Aplication.Services
                         .FirstOrDefaultAsync(o => o.Id == id)
                         ?? throw new BusinessException("Order not found");
 
-            // validación de transición
             if (!IsValidTransition(order.Status, dto.NewStatus))
                 throw new BusinessException($"Invalid transition from {order.Status} to {dto.NewStatus}");
 
             order.UpdateStatus(dto.NewStatus);
             await _context.SaveChangesAsync();
+
+            _busService.Publish("orders", new { Event = "OrderUpdated", OrderId = order.Id, Status = order.Status });
+
             return order.ToDto();
         }
 
