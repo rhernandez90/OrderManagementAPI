@@ -12,13 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 var docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true") ?? false;
 
-// en caso de que se corra local importamos el archivo .env
 if (!docker)
 {
     Env.Load();
 }
 
-// Obligamos a correr el API en el puerto 5000
 if (docker)
 {
     builder.WebHost.ConfigureKestrel(options =>

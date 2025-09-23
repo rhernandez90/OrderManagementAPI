@@ -32,7 +32,13 @@ namespace OrderManagementAPI.Aplication.Services
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            _busService.Publish("orders", new { Event = "OrderCreated", OrderId = order.Id, Status = order.Status });
+            _busService.Publish("orders", new { 
+                Event = "OrderCreated", 
+                OrderId = order.Id, 
+                Client = order.Client ,
+                Status = order.Status.ToString(),
+                Product = product
+            });
 
             return order.ToDto();
         }
