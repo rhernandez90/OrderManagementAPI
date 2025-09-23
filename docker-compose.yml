@@ -1,0 +1,85 @@
+services:
+
+  # api-integration:
+  #   build:
+  #     context: ./IntegrationAPI
+  #     dockerfile: ./Dockerfile
+  #   container_name: api-integration-dev
+  #   env_file:
+  #     - ./IntegrationAPI/.env
+  #   ports:
+  #     - "6000:80"
+  #   volumes:
+  #     - .:/src 
+  #   environment:
+  #     - DOTNET_RUNNING_IN_CONTAINER=true
+  #     - DOTNET_USE_POLLING_FILE_WATCHER=1
+  #     - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=1
+  #     - RABBITMQ_HOST=rabbitmq 
+  #     - RABBITMQ_PORT=5672
+  #     - RABBITMQ_USER=guest
+  #     - RABBITMQ_PASSWORD=guest
+  #     - TRELLO_APIKEY=tu_api_key
+  #     - TRELLO_TOKEN=tu_token
+  #     - TRELLO_BOARDID=tu_board_id
+  #     - TRELLO_LISTID=tu_list_id
+
+  #   depends_on:
+  #     - rabbitmq
+  #   networks:
+  #     - appnet
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    container_name: order-api-dev
+    ports:
+      - "5000:5000"
+      # - "5001:5001"
+    volumes:
+      - .:/src 
+      - /src/bin
+      - /src/obj
+    environment:
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=1
+      - DB_HOST=db
+      - DB_NAME=ORDERMANAGEMENT
+      - DB_USER=sa
+      - DB_PASSWORD=Your_password123
+      - RABBITMQ_HOST=rabbitmq 
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-db-dev
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - appnet
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    ports:
+      - "5673:5672"   # puerto para apps (.NET) -> contenedor sigue usando 5672 internamente
+      - "15673:15672" # panel web -> contenedor sigue usando 15672 internamente
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
