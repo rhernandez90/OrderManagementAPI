@@ -22,7 +22,6 @@ namespace OrderManagementAPI.Aplication.Services.MessageBus
 
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
-
         }
 
 

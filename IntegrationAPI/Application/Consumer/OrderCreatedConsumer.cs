@@ -23,7 +23,7 @@ namespace IntegrationAPI.Application.Consumer
             var factory = new ConnectionFactory()
             {
                 HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5673"),
+                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
                 UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest",
                 Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest"
             };

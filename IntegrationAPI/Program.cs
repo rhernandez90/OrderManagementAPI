@@ -1,6 +1,7 @@
 using DotNetEnv;
 using IntegrationAPI.Application.Consumer;
 using IntegrationAPI.Application.Services;
+using IntegrationAPI.Infrastructure.OrderApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -30,6 +31,11 @@ builder.Services.AddHttpClient<ITrelloService, TrelloService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddHttpClient<IOrderApiAdapter, OrderApiAdapter>(client =>
+{
+    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ORDER_MANAGEMENT_API_URL")??"");
+});
 
 var app = builder.Build();
 
