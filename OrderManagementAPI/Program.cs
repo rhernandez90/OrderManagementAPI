@@ -52,8 +52,8 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 
-
-await WaitForSqlServerAsync(dbHost, 1433);
+if(docker)
+    await WaitForSqlServerAsync(dbHost, 1433);
 
 using (var scope = app.Services.CreateScope())
 {
