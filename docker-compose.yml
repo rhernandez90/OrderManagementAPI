@@ -1,37 +1,38 @@
 services:
 
-  # api-integration:
-  #   build:
-  #     context: ./IntegrationAPI
-  #     dockerfile: ./Dockerfile
-  #   container_name: api-integration-dev
-  #   env_file:
-  #     - ./IntegrationAPI/.env
-  #   ports:
-  #     - "5121:5121"
-  #   volumes:
-  #     - .:/src 
-  #   environment:
-  #     - DOTNET_RUNNING_IN_CONTAINER=true
-  #     - DOTNET_USE_POLLING_FILE_WATCHER=1
-  #     - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=1
-  #     - RABBITMQ_HOST=rabbitmq 
-  #     - RABBITMQ_PORT=5672
-  #     - RABBITMQ_USER=guest
-  #     - RABBITMQ_PASSWORD=guest
-  #     - TRELLO_APIKEY=tu_api_key
-  #     - TRELLO_TOKEN=tu_token
-  #     - TRELLO_BOARDID=tu_board_id
-  #     - TRELLO_LISTID=tu_list_id
+  api-integration:
+    build:
+      context: ./IntegrationAPI
+      dockerfile: ./Dockerfile
+    container_name: api-integration-dev
+    ports:
+      - "5114:5114"
+    volumes:
+      - .:/src
+      - /src/bin
+      - /src/obj
+    environment:
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=1
+      - RABBITMQ_HOST=rabbitmq 
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - TRELLO_APIKEY=5543f9efc9ae0a2f07bd2f7c414d8709
+      - TRELLO_TOKEN=ATTAb66bc17a04f7bcf7456dd5c5d4061c98741bafe9fc933bcd00ff23f6fc016d793DF088E1
+      - TRELLO_BOARDID=5caa37747ab7e37b2f210153
+      - TRELLO_LISTID=5caa377453cba941e3675c63
+      - ORDER_MANAGEMENT_API_URL=http://api:5000/
 
-  #   depends_on:
-  #     - rabbitmq
-  #   networks:
-  #     - appnet
+    depends_on:
+      - rabbitmq
+    networks:
+      - appnet
   api:
     build:
-      context: .
-      dockerfile: ./Dockerfile.dev
+      context: ./OrderManagementAPI
+      dockerfile: ./Dockerfile
     container_name: order-api-dev
     ports:
       - "5000:5000"

@@ -6,5 +6,6 @@
         public string Client { get; set; }
         public string Status { get; set; }
         public object Product { get; set; }
+        public string ExternalTaskId { get; set; }
     }
 }

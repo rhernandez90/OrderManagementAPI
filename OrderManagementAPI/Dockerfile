@@ -2,8 +2,8 @@
     WORKDIR /src
 
     COPY ../*.sln ./
-    COPY ./OrderManagementAPI/*.csproj ./OrderManagementAPI/
-    RUN dotnet restore OrderManagementAPI/OrderManagementAPI.csproj
+    COPY ./*.csproj ./
+    RUN dotnet restore ./OrderManagementAPI.csproj
 
     COPY .. .
 

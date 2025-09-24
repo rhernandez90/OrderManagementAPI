@@ -1,7 +1,11 @@
+using DotNetEnv;
 using IntegrationAPI.Application.Consumer;
 using IntegrationAPI.Application.Services;
-using DotNetEnv;
+using IntegrationAPI.Infrastructure.OrderApi;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true") ?? false;
 
@@ -14,7 +18,7 @@ if (docker)
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.ListenAnyIP(5121);
+        options.ListenAnyIP(5114);
     });
 }
 
@@ -28,12 +32,25 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpClient<IOrderApiAdapter, OrderApiAdapter>(client =>
+{
+    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ORDER_MANAGEMENT_API_URL")??"");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Server v1");
+        options.OAuthClientId(builder.Configuration["AzureAd:ClientId"]);
+        options.OAuthScopeSeparator(" ");
+        options.OAuthUsePkce();
+    });
 }
 
 app.UseAuthorization();

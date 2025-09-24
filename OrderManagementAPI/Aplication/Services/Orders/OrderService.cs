@@ -75,7 +75,7 @@ namespace OrderManagementAPI.Aplication.Services
 
         public async Task<OrderDto> ChangeStatusAsync(Guid id, ChangeOrderStatusDto dto)
         {
-            var order = await _context.Orders.Include(o => o.Product)
+            var order = await _context.Orders.Include(o => o.Product).Include(o => o.OrderTasks)
                         .FirstOrDefaultAsync(o => o.Id == id)
                         ?? throw new BusinessException("Order not found");
 
@@ -85,7 +85,14 @@ namespace OrderManagementAPI.Aplication.Services
             order.UpdateStatus(dto.NewStatus);
             await _context.SaveChangesAsync();
 
-            _busService.Publish("orders", new { Event = "OrderUpdated", OrderId = order.Id, Status = order.Status });
+            _busService.Publish("orders", new {
+                Event = "OrderUpdated",
+                OrderId = order.Id,
+                Client = order.Client,
+                Status = dto.NewStatus.ToString(),
+                Product = order.Product,
+                ExternalTaskId = order.OrderTasks.LastOrDefault()?.ExternalTaskId
+            });
 
             return order.ToDto();
         }

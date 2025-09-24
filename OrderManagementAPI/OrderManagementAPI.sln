@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManagementAPI", "OrderManagementAPI.csproj", "{45A8CF95-9D50-40B8-B011-C5ED97DBD79C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationAPI", "..\IntegrationAPI\IntegrationAPI.csproj", "{CE466CA3-F2B6-4E8D-930D-CBEEDEA7FB0E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{45A8CF95-9D50-40B8-B011-C5ED97DBD79C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45A8CF95-9D50-40B8-B011-C5ED97DBD79C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45A8CF95-9D50-40B8-B011-C5ED97DBD79C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE466CA3-F2B6-4E8D-930D-CBEEDEA7FB0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE466CA3-F2B6-4E8D-930D-CBEEDEA7FB0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE466CA3-F2B6-4E8D-930D-CBEEDEA7FB0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE466CA3-F2B6-4E8D-930D-CBEEDEA7FB0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

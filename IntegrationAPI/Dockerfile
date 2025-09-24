@@ -1,14 +1,15 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
+    FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+    WORKDIR /src
 
-COPY *.csproj ./
-RUN dotnet restore
+    COPY ../*.sln ./
+    COPY ./*.csproj ./
+    RUN dotnet restore ./IntegrationAPI.csproj
 
-COPY . ./
+    COPY .. .
 
-RUN dotnet tool install --global dotnet-watch
-ENV PATH="$PATH:/root/.dotnet/tools"
+    RUN dotnet tool install --global dotnet-watch
 
-WORKDIR /src
+    ENV PATH="$PATH:/root/.dotnet/tools"
 
-ENTRYPOINT ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5121;https://0.0.0.0:5121"]
+    WORKDIR /src/IntegrationAPI
+    ENTRYPOINT ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5114;https://0.0.0.0:5001"]

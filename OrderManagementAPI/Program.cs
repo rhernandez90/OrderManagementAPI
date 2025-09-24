@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderManagementAPI.Aplication.Middleware;
 using OrderManagementAPI.Aplication.Services;
 using OrderManagementAPI.Aplication.Services.MessageBus;
+using OrderManagementAPI.Aplication.Services.OrderTask;
 using OrderManagementAPI.Aplication.Services.Products;
 using OrderManagementAPI.Infrastructure.Percistence;
 using System.Net.Sockets;
@@ -29,10 +30,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Variables de entorno
-string dbUser = Environment.GetEnvironmentVariable("DB_USER");
-string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
-string dbHost = Environment.GetEnvironmentVariable("DB_HOST");
-string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+string dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "";
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+string dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "";
+string dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "";
 
 
 Console.WriteLine($"[DB Config] Host: {dbHost}, User: {dbUser}, Database: {dbName}");
@@ -44,6 +45,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderTaskService, OrderTaskService>();
 builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
 
 builder.Services.AddControllers();
@@ -52,8 +54,8 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 
-
-await WaitForSqlServerAsync(dbHost, 1433);
+if(docker)
+    await WaitForSqlServerAsync(dbHost, 1433);
 
 using (var scope = app.Services.CreateScope())
 {

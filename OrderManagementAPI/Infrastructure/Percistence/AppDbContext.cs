@@ -10,6 +10,7 @@ namespace OrderManagementAPI.Infrastructure.Percistence
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
 
+        public DbSet<OrderTasks> OrderTasks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -67,6 +68,11 @@ namespace OrderManagementAPI.Infrastructure.Percistence
                 .HasOne(o => o.Product)
                 .WithMany()
                 .HasForeignKey(o => o.ProductId);
+
+            modelBuilder.Entity<OrderTasks>()
+                .HasOne(ot => ot.Order)
+                .WithMany( o => o.OrderTasks)
+                .HasForeignKey(ot => ot.OrderId);
         }
     }
 }

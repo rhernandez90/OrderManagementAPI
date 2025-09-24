@@ -4,6 +4,7 @@ namespace IntegrationAPI.Application.Services
 {
     public interface ITrelloService
     {
-        Task CreateOrUpdateCardAsync(OrderDto order);
+        Task CreateCardAsync(OrderDto order);
+        Task UpdateCardStatusAsync(OrderDto order);
     }
 }
