@@ -1,64 +1,92 @@
 # Order Management System con integración Trello
 
 Este proyecto consiste en un sistema basado en **microservicios** compuesto por:
-- **OrderManagementAPI** → expone endpoints para crear y actualizar órdenes.
-- **IntegrationAPI** → escucha eventos en RabbitMQ y crea/actualiza tarjetas en Trello.
-- **RabbitMQ** → utilizado como message broker.
-- **SQL Server** → persistencia de datos para las órdenes.
+
+- **OrderManagementAPI** → expone endpoints para crear y actualizar órdenes.  
+- **IntegrationAPI** → escucha eventos en RabbitMQ y crea/actualiza tarjetas en Trello.  
+- **RabbitMQ** → utilizado como *message broker*.  
+- **SQL Server** → persistencia de datos para las órdenes.  
 
 ---
 
 ## 📐 Arquitectura elegida y razones
 
+- Cada API tiene su propio ciclo de vida, base de datos y responsabilidades claras.  
+- RabbitMQ permite comunicación asíncrona y confiable entre servicios.  
+- SQL Server asegura persistencia transaccional de las órdenes.  
+- Trello se utiliza como integración externa para gestión visual de las órdenes.  
 
-- Cada API tiene su propio ciclo de vida, base de datos y responsabilidades claras.
-- RabbitMQ permite comunicación asíncrona y confiable entre servicios.
-- SQL Server asegura persistencia transaccional de las órdenes.
-- Trello se usa como integración externa para gestión visual.
-
+```mermaid
+flowchart LR
+    A[OrderManagementAPI] -->|Publica evento| B(RabbitMQ)
+    B -->|Consume evento| C[IntegrationAPI]
+    A -->|Persistencia| D[(SQL Server)]
+    C -->|Crea/Actualiza| E[Trello]
+```
 
 ---
 
 ## 🧩 Principios SOLID aplicados
 
-- **S (Single Responsibility)**:  
-  - `OrderController` solo maneja endpoints.  
-  - `OrderService` encapsula la lógica de negocio de órdenes.  
-  - `RabbitMqService` se encarga únicamente de la comunicación con RabbitMQ.  
+- **S (Single Responsibility)**  
+  - `OrderController` → solo maneja endpoints.  
+  - `OrderService` → encapsula la lógica de negocio de órdenes.  
+  - `RabbitMqService` → gestiona exclusivamente la comunicación con RabbitMQ.  
 
-- **O (Open/Closed)**:  
-  - Los servicios pueden extenderse (ej. nuevos publishers para más colas) sin modificar las clases existentes.  
+- **O (Open/Closed)**  
+  - Los servicios pueden extenderse (ej. nuevos *publishers* para más colas) sin modificar las clases existentes.  
 
-- **L (Liskov Substitution)**:  
-  - Interfaces como `IRabbitMqService` aseguran que cualquier implementación (real o fake para testing) sea intercambiable.  
+- **L (Liskov Substitution)**  
+  - Interfaces como `IRabbitMqService` permiten usar implementaciones reales o *mocks* en testing.  
 
-- **I (Interface Segregation)**:  
+- **I (Interface Segregation)**  
   - Cada servicio define contratos mínimos (`IOrderService`, `IRabbitMqService`), evitando dependencias innecesarias.  
 
-- **D (Dependency Inversion)**:  
-  - Las dependencias se inyectan vía constructor usando **DI de .NET**, desacoplando de implementaciones concretas.
+- **D (Dependency Inversion)**  
+  - Se utilizan dependencias inyectadas vía constructor usando **DI de .NET**, desacoplando las implementaciones concretas.  
 
 ---
 
-## 🏗️ Patrones de diseño usados
+## 🏗️ Patrones de diseño utilizados
 
-- **DDD**:
-  - se utilizo una arquitectura basada en el dominio la cual nos permite segregar de manera clara y eficiente los proyectos.
-  
-- **Publisher/Subscriber (con RabbitMQ)**:  
-  - OrderManagementAPI publica eventos en RabbitMQ.  
-  - IntegrationAPI suscribe y procesa los mensajes.  
-    
-## Para Ejecutar el proyecto basta con ejecutar el comando docker-compose up --build
-**El cual se encargara de levantar lo contenedores necesario para levantar el api de ordenes
-El server SQL y el ser de RabbitMQ,**
-**Ojo por la prontitud en la que se desarrollo el proyecto no pude dejar la ultima configuracion en docker para 
-El servicio que escucha la informacion de la cola de RabbitMQ  pero basta con correrlo por separa el archivo .env
-ya tiene todas las variables necesaria para conectarse localmente al servicio de rabbitmq que se levanta en docker**
+- **DDD (Domain-Driven Design)**  
+  - Arquitectura basada en el dominio, que permite segregar de manera clara y eficiente los proyectos.  
 
-### Nota:
-- Agregar las variables necesarias para efectuar la coneccion con trello 
-- Solamente quedo funcionando la creacion de la card en trello cada vez que se crea una nueva orden
-- Al levantar los contenedores con docker se corren las migraciones la cual crea la base de datos y tablas 
-    tambien 3 productos por defectos son insertados en la taba de product
+- **Publisher/Subscriber (con RabbitMQ)**  
+  - **OrderManagementAPI** publica eventos en RabbitMQ.  
+  - **IntegrationAPI** se suscribe y procesa los mensajes.  
 
+---
+
+## 🚀 Ejecución del proyecto
+
+### Requisitos previos
+- Docker y Docker Compose instalados.
+- Claves y tokens de Trello configurados en `IntegrationAPI`.
+
+### Pasos
+1. Clonar el repositorio.  
+2. Ejecutar el comando:  
+
+   ```bash
+   docker compose up --build
+   ```
+
+   Esto levantará los siguientes contenedores:
+   - **OrderManagementAPI**
+   - **SQL Server**
+   - **RabbitMQ**
+   - **IntegrationAPI**
+
+3. Una vez levantados los contenedores, el API estará disponible en:  
+   👉 [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html)
+
+---
+
+## 📝 Notas adicionales
+
+- Es necesario agregar las variables necesarias para la conexión con Trello en `IntegrationAPI`.  
+- Actualmente solo está implementada la creación de tarjetas en Trello al generar una nueva orden.  
+- Al levantar los contenedores con Docker se ejecutan automáticamente las migraciones que:  
+  - Crean la base de datos y tablas.  
+  - Insertan 3 productos de ejemplo en la tabla `Product`.  
