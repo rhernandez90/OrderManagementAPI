@@ -86,7 +86,6 @@ flowchart LR
 ## 📝 Notas adicionales
 
 - Es necesario agregar las variables necesarias para la conexión con Trello en `IntegrationAPI`.  
-- Actualmente solo está implementada la creación de tarjetas en Trello al generar una nueva orden.  
 - Al levantar los contenedores con Docker se ejecutan automáticamente las migraciones que:  
   - Crean la base de datos y tablas.  
   - Insertan 3 productos de ejemplo en la tabla `Product`.  
