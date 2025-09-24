@@ -74,7 +74,7 @@ namespace OrderManagementAPI.Controllers
             return Ok(response);
         }
 
-        [HttpPost("{id}/asign-task/{taskId}")]
+        [HttpPost("{id}/assign-task/{taskId}")]
         public async Task<IActionResult> AssignTask(Guid id, string taskId)
         {
             var orderId = await _orderTaskService.CreateOrderTaskAsync(id, taskId);

@@ -47,11 +47,30 @@ namespace IntegrationAPI.Application.Consumer
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
-                var order = JsonConvert.DeserializeObject<OrderDto>(message);
+                dynamic orderEvent = JsonConvert.DeserializeObject(message);
 
                 using var scope = _serviceProvider.CreateScope();
                 var trelloService = scope.ServiceProvider.GetRequiredService<ITrelloService>();
-                await trelloService.CreateOrUpdateCardAsync(order);
+
+                string eventName = orderEvent.Event?.ToString();
+                OrderDto order = new OrderDto
+                {
+                    OrderId = Guid.Parse(orderEvent.OrderId.ToString()),
+                    Client = orderEvent.Client.ToString(),
+                    Status = orderEvent.Status.ToString(),
+                    Product = orderEvent.Product,
+                    ExternalTaskId = orderEvent?.ExternalTaskId ?? ""
+                };
+
+                if (eventName == "OrderCreated")
+                {
+                    await trelloService.CreateCardAsync(order);
+                }
+                else if (eventName == "OrderUpdated")
+                {
+                    if (!string.IsNullOrEmpty(order.ExternalTaskId))
+                        await trelloService.UpdateCardStatusAsync(order);
+                }
             };
 
             _channel.BasicConsume(queue: _queueName,
@@ -60,5 +79,6 @@ namespace IntegrationAPI.Application.Consumer
 
             return Task.CompletedTask;
         }
+
     }
 }
