@@ -11,7 +11,8 @@ namespace OrderManagementAPI.Domain.Entities
         public Product Product { get; private set; }
         public OrderStatus Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
-        public DateTime UpdatedAt { get; private set; }
+        public DateTime UpdatedAt { get; private set; } 
+        public ICollection<OrderTasks> OrderTasks { get; private set; } = new List<OrderTasks>();
 
         public Order(string client, string description, Guid productId)
         {

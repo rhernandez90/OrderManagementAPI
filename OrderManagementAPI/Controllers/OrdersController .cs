@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using OrderManagementAPI.Aplication.DTOs.Orders;
 using OrderManagementAPI.Aplication.Mappers;
 using OrderManagementAPI.Aplication.Services;
+using OrderManagementAPI.Aplication.Services.OrderTask;
 using OrderManagementAPI.Controllers.DTOs;
+using OrderManagementAPI.Domain.Entities;
 using OrderManagementAPI.Domain.Enums;
 
 namespace OrderManagementAPI.Controllers
@@ -13,10 +15,12 @@ namespace OrderManagementAPI.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IOrderTaskService _orderTaskService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IOrderTaskService orderTaskService)
         {
             _orderService = orderService;
+            _orderTaskService = orderTaskService;
         }
 
         [HttpPost]
@@ -68,6 +72,14 @@ namespace OrderManagementAPI.Controllers
             var orders = await _orderService.SearchOrdersAsync(filter);
             var response = new ApiResponseDto<OrderManagementAPI.Aplication.DTOs.PagedResult<OrderDto>>(orders, "Orders retrieved successfully");
             return Ok(response);
+        }
+
+        [HttpPost("{id}/asign-task/{taskId}")]
+        public async Task<IActionResult> AssignTask(Guid id, string taskId)
+        {
+            var orderId = await _orderTaskService.CreateOrderTaskAsync(id, taskId);
+            var response = new ApiResponseDto<Guid>(orderId, "Order created successfully");
+            return CreatedAtAction(nameof(Get), new { id = orderId }, response);
         }
     }
 }
